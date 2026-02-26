@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zavimart/core/routes/app_routes.dart';
 
 class ZaviMartApp extends ConsumerStatefulWidget {
   const ZaviMartApp({super.key});
@@ -17,14 +18,14 @@ class _ZaviMartAppState extends ConsumerState<ZaviMartApp> {
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      child: MaterialApp(
+      child: MaterialApp.router(
         title: 'ZaviMart',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: Scaffold(body: Center(child: Text("Initial page"))),
+        routerConfig: router,
       ),
     );
   }

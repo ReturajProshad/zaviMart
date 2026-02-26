@@ -8,4 +8,5 @@ class UrlServices {
   // --- Product Endpoints ---
   static const String products = '/products';
   static String productsByCategory(String id) => '/products/$id';
+  static const String categories = '/products/categories';
 }

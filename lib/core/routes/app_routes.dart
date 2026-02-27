@@ -3,7 +3,7 @@ import 'package:zavimart/features/auth/presentation/view/auth_view.dart';
 import 'package:zavimart/features/products/presentation/view/main_listing_page.dart';
 
 final router = GoRouter(
-  initialLocation: AppRoutes.login,
+  initialLocation: AppRoutes.listPage,
   routes: [
     GoRoute(
       path: AppRoutes.login,

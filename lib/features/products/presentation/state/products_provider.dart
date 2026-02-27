@@ -22,16 +22,19 @@ final getCategoriesUseCaseProvider = Provider<GetCategoriesUseCase>((ref) {
 });
 
 class ProductsNotifier extends AsyncNotifier<List<Product>> {
-  late GetProductsUseCase _getProductsUseCase;
+  final String? _category;
+
+  ProductsNotifier(this._category);
 
   @override
   Future<List<Product>> build() async {
-    _getProductsUseCase = ref.read(getProductsUseCaseProvider);
-    return _loadProducts(null);
+    return _fetch(_category);
   }
 
-  Future<List<Product>> _loadProducts(String? category) async {
-    final result = await _getProductsUseCase(category: category);
+  Future<List<Product>> _fetch(String? category) async {
+    final result = await ref
+        .read(getProductsUseCaseProvider)
+        .call(category: category);
     return result.fold(
       (failure) => throw Exception(failure.message),
       (products) => products,
@@ -40,7 +43,9 @@ class ProductsNotifier extends AsyncNotifier<List<Product>> {
 
   Future<void> filterByCategory(String? category) async {
     state = const AsyncValue.loading();
-    final result = await _getProductsUseCase(category: category);
+    final result = await ref
+        .read(getProductsUseCaseProvider)
+        .call(category: category);
     state = result.fold(
       (l) => AsyncValue.error(l.message, StackTrace.current),
       (r) => AsyncValue.data(r),
@@ -48,27 +53,28 @@ class ProductsNotifier extends AsyncNotifier<List<Product>> {
   }
 }
 
-class CategoriesNotifier extends AsyncNotifier<List<Category>> {
-  late GetCategoriesUseCase _getCategoriesUseCase;
+final productsProvider =
+    AsyncNotifierProvider.family<ProductsNotifier, List<Product>, String?>(
+      (category) => ProductsNotifier(category),
+    );
 
+class CategoriesNotifier extends AsyncNotifier<List<Category>> {
   @override
   Future<List<Category>> build() async {
-    _getCategoriesUseCase = ref.read(getCategoriesUseCaseProvider);
-    return _loadCategories();
+    return _fetch();
   }
 
-  Future<List<Category>> _loadCategories() async {
-    final result = await _getCategoriesUseCase();
+  Future<List<Category>> _fetch() async {
+    final result = await ref.read(getCategoriesUseCaseProvider).call();
     return result.fold(
       (failure) => throw Exception(failure.message),
       (categories) => categories,
     );
   }
 
-  // *** FIX: Add a public refetch method for the RefreshIndicator ***
   Future<void> refetch() async {
     state = const AsyncValue.loading();
-    final result = await _getCategoriesUseCase();
+    final result = await ref.read(getCategoriesUseCaseProvider).call();
     state = result.fold(
       (l) => AsyncValue.error(l.message, StackTrace.current),
       (r) => AsyncValue.data(r),
@@ -76,13 +82,7 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
   }
 }
 
-final productsProvider = AsyncNotifierProvider<ProductsNotifier, List<Product>>(
-  () {
-    return ProductsNotifier();
-  },
-);
-
 final categoriesProvider =
-    AsyncNotifierProvider<CategoriesNotifier, List<Category>>(() {
-      return CategoriesNotifier();
-    });
+    AsyncNotifierProvider<CategoriesNotifier, List<Category>>(
+      CategoriesNotifier.new,
+    );

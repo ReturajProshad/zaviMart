@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:zavimart/features/auth/presentation/view/auth_view.dart';
 import 'package:zavimart/features/products/presentation/view/main_listing_page.dart';
+import 'package:zavimart/features/profile/presentation/view/profile_view.dart';
 
 final router = GoRouter(
   initialLocation: AppRoutes.login,
@@ -14,6 +15,11 @@ final router = GoRouter(
       path: AppRoutes.listPage,
       name: AppRoutes.listPage,
       builder: (context, state) => MainListingPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.profilePage,
+      name: AppRoutes.profilePage,
+      builder: (context, state) => ProfileView(),
     ),
   ],
 );

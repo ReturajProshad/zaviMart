@@ -1,18 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:zavimart/core/providers/api_service_provider.dart';
+import 'package:zavimart/core/providers/auth_repo_provider.dart';
 import 'package:zavimart/core/routes/app_routes.dart';
 import 'package:zavimart/core/services/prefs_service.dart';
-import 'package:zavimart/features/auth/data/repositories/auth_repo_impl.dart';
 import 'package:zavimart/features/auth/domain/entities/user_entity.dart';
 import 'package:zavimart/features/auth/domain/repositories/auth_repo.dart';
 import 'package:zavimart/features/auth/domain/usecases/login_usecase.dart';
-
-final authRepoProvider = Provider<AuthRepo>((ref) {
-  final apiService = ref.read(apiServiceProvider);
-  return AuthRepoImpl(apiService);
-});
 
 final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
   final repo = ref.read(authRepoProvider);
@@ -25,11 +18,14 @@ final authProvider = AsyncNotifierProvider<AuthNotifier, User?>(() {
 
 class AuthNotifier extends AsyncNotifier<User?> {
   late final LoginUseCase _loginUseCase;
+  late final AuthRepo _authRepo;
 
   @override
   Future<User?> build() async {
     _loginUseCase = ref.read(loginUseCaseProvider);
-    return null;
+    _authRepo = ref.read(authRepoProvider);
+    final result = await _authRepo.getCurrentUser();
+    return result.fold((failure) => null, (user) => user);
   }
 
   Future<void> login(String email, String password) async {
@@ -43,7 +39,7 @@ class AuthNotifier extends AsyncNotifier<User?> {
       },
       (user) {
         state = AsyncValue.data(user);
-        router.push(AppRoutes.listPage);
+        router.pushReplacement(AppRoutes.listPage);
       },
     );
   }

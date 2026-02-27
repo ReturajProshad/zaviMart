@@ -4,4 +4,7 @@ import 'package:zavimart/features/auth/domain/entities/user_entity.dart';
 
 abstract class AuthRepo {
   Future<Either<Failure, User>> login(String email, String password);
+  Future<Either<Failure, User>> getCurrentUser();
+
+  Future<Either<Failure, User>> getUserProfile(int userId);
 }

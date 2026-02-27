@@ -4,6 +4,7 @@ import 'package:zavimart/core/errors/failures.dart';
 import 'package:zavimart/core/network/api/base_api_imple.dart';
 import 'package:zavimart/core/network/url_services.dart';
 import 'package:zavimart/core/services/prefs_service.dart';
+import 'package:zavimart/features/auth/data/models/user_model.dart';
 import 'package:zavimart/features/auth/domain/entities/user_entity.dart';
 import 'package:zavimart/features/auth/domain/repositories/auth_repo.dart';
 
@@ -21,16 +22,11 @@ class AuthRepoImpl implements AuthRepo {
 
     return result.fold((failure) => Left(failure), (response) async {
       final token = response.data?['token'];
-
-      if (token == null) {
-        return Left(ServerFailure('Token not found'));
-      }
+      if (token == null) return Left(ServerFailure('Token not found'));
 
       try {
         await PrefsService().saveTokens(token, '');
-
-        final user = _createUserFromToken(token);
-
+        final user = UserModel.fromTokenJson(_decodeToken(token)).toEntity();
         return Right(user);
       } catch (e) {
         return Left(ServerFailure('Failed to process token: $e'));
@@ -42,20 +38,36 @@ class AuthRepoImpl implements AuthRepo {
   Future<Either<Failure, User>> getCurrentUser() async {
     try {
       final token = await PrefsService().getAccessToken();
-      if (token == null) {
-        return Left(ServerFailure('No token found'));
-      }
-
+      if (token == null) return Left(ServerFailure('No token found'));
       if (_isTokenExpired(token)) {
         await PrefsService().clear();
         return Left(ServerFailure('Token expired'));
       }
-
-      final user = _createUserFromToken(token);
+      final user = UserModel.fromTokenJson(_decodeToken(token)).toEntity();
       return Right(user);
     } catch (e) {
       return Left(ServerFailure('Failed to get current user: $e'));
     }
+  }
+
+  @override
+  Future<Either<Failure, User>> getUserProfile(int userId) async {
+    final result = await apiService.get<Map<String, dynamic>>(
+      '${UrlServices.users}/$userId',
+    );
+
+    return result.fold((failure) => Left(failure), (response) {
+      final userData = response.data;
+      if (userData == null) {
+        return Left(ServerFailure('User data not found'));
+      }
+      try {
+        final user = UserModel.fromJson(userData).toEntity();
+        return Right(user);
+      } catch (e) {
+        return Left(ServerFailure('Failed to parse user data: $e'));
+      }
+    });
   }
 
   Map<String, dynamic> _decodeToken(String token) {
@@ -74,23 +86,6 @@ class AuthRepoImpl implements AuthRepo {
     return json.decode(decoded) as Map<String, dynamic>;
   }
 
-  User _createUserFromToken(String token) {
-    final decoded = _decodeToken(token);
-    return User(
-      id: decoded['sub']?.toString() ?? '0',
-      email:
-          decoded['email'] ??
-          decoded['user'] ??
-          '', // Use email if available, fallback to username
-      name:
-          decoded['name'] ??
-          decoded['user'] ??
-          '', // Use name if available, fallback to username
-      username: decoded['user'] ?? '',
-    );
-  }
-
-  // Check if token is expired
   bool _isTokenExpired(String token) {
     try {
       final decoded = _decodeToken(token);

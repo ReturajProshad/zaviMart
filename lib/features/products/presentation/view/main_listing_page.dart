@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:zavimart/core/routes/app_routes.dart';
 import 'package:zavimart/features/auth/presentation/state/auth_provider.dart';
 import 'package:zavimart/features/products/presentation/state/products_provider.dart';
 import 'package:zavimart/features/products/presentation/widgets/product_card.dart';
@@ -93,7 +94,7 @@ class _MainListingPageState extends ConsumerState<MainListingPage> {
                           ),
                           tooltip: 'Profile',
                           onPressed: () {
-                            // TODO: navigate to profile page
+                            router.push(AppRoutes.profilePage);
                           },
                         ),
                         IconButton(

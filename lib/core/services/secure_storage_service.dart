@@ -1,9 +1,10 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class PrefsService {
-  static final PrefsService _instance = PrefsService._internal();
-  factory PrefsService() => _instance;
-  PrefsService._internal();
+class SecureStorageService {
+  static final SecureStorageService _instance =
+      SecureStorageService._internal();
+  factory SecureStorageService() => _instance;
+  SecureStorageService._internal();
   final _storage = const FlutterSecureStorage();
   static const _accessTokenKey = 'ACCESS_TOKEN';
   static const _refreshTokenKey = 'REFRESH_TOKEN';

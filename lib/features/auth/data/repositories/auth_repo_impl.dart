@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:zavimart/core/errors/failures.dart';
 import 'package:zavimart/core/network/api/base_api_imple.dart';
 import 'package:zavimart/core/network/url_services.dart';
-import 'package:zavimart/core/services/prefs_service.dart';
+import 'package:zavimart/core/services/secure_storage_service.dart';
 import 'package:zavimart/features/auth/data/models/user_model.dart';
 import 'package:zavimart/features/auth/domain/entities/user_entity.dart';
 import 'package:zavimart/features/auth/domain/repositories/auth_repo.dart';
@@ -25,7 +25,7 @@ class AuthRepoImpl implements AuthRepo {
       if (token == null) return Left(ServerFailure('Token not found'));
 
       try {
-        await PrefsService().saveTokens(token, '');
+        await SecureStorageService().saveTokens(token, '');
         final user = UserModel.fromTokenJson(_decodeToken(token)).toEntity();
         return Right(user);
       } catch (e) {
@@ -37,10 +37,10 @@ class AuthRepoImpl implements AuthRepo {
   @override
   Future<Either<Failure, User>> getCurrentUser() async {
     try {
-      final token = await PrefsService().getAccessToken();
+      final token = await SecureStorageService().getAccessToken();
       if (token == null) return Left(ServerFailure('No token found'));
       if (_isTokenExpired(token)) {
-        await PrefsService().clear();
+        await SecureStorageService().clear();
         return Left(ServerFailure('Token expired'));
       }
       final user = UserModel.fromTokenJson(_decodeToken(token)).toEntity();

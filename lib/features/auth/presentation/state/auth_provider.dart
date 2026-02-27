@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zavimart/core/providers/auth_repo_provider.dart';
 import 'package:zavimart/core/routes/app_routes.dart';
-import 'package:zavimart/core/services/prefs_service.dart';
+import 'package:zavimart/core/services/secure_storage_service.dart';
 import 'package:zavimart/features/auth/domain/entities/user_entity.dart';
 import 'package:zavimart/features/auth/domain/repositories/auth_repo.dart';
 import 'package:zavimart/features/auth/domain/usecases/login_usecase.dart';
@@ -45,7 +45,7 @@ class AuthNotifier extends AsyncNotifier<User?> {
   }
 
   Future<void> logout() async {
-    await PrefsService().clear();
+    await SecureStorageService().clear();
     state = const AsyncValue.data(null);
     router.pushReplacement(AppRoutes.login);
   }

@@ -2,7 +2,7 @@ import 'dart:developer' as developer;
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:zavimart/core/services/prefs_service.dart';
+import 'package:zavimart/core/services/secure_storage_service.dart';
 import 'package:zavimart/core/network/api/pretty_dio_log.dart';
 import 'package:zavimart/core/network/url_services.dart';
 
@@ -59,7 +59,7 @@ class ApiClient {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await PrefsService().getAccessToken();
+    final token = await SecureStorageService().getAccessToken();
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
@@ -148,7 +148,7 @@ class ApiClient {
     ErrorInterceptorHandler handler,
   ) async {
     try {
-      final token = await PrefsService().getAccessToken();
+      final token = await SecureStorageService().getAccessToken();
       if (token != null && token.isNotEmpty) {
         options.headers['Authorization'] = 'Bearer $token';
       }
@@ -162,7 +162,7 @@ class ApiClient {
 
   Future<bool> refreshToken() async {
     try {
-      final refreshToken = await PrefsService().getRefreshToken();
+      final refreshToken = await SecureStorageService().getRefreshToken();
       if (refreshToken == null) return false;
 
       developer.log("Refreshing token", name: "ApiClient");
@@ -176,7 +176,10 @@ class ApiClient {
         final newAccessToken = response.data['data']['accessToken'];
         final newRefreshToken = response.data['data']['refreshToken'];
 
-        await PrefsService().saveTokens(newAccessToken, newRefreshToken);
+        await SecureStorageService().saveTokens(
+          newAccessToken,
+          newRefreshToken,
+        );
         return true;
       }
       return false;
@@ -187,7 +190,7 @@ class ApiClient {
   }
 
   Future<void> _logout() async {
-    await PrefsService().clear();
+    await SecureStorageService().clear();
     developer.log("Logging out", name: "ApiClient");
     if (_logoutCallback != null) {
       _logoutCallback!();

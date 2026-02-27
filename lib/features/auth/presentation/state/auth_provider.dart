@@ -47,6 +47,6 @@ class AuthNotifier extends AsyncNotifier<User?> {
   Future<void> logout() async {
     await PrefsService().clear();
     state = const AsyncValue.data(null);
-    router.push(AppRoutes.login);
+    router.pushReplacement(AppRoutes.login);
   }
 }

@@ -1,14 +1,21 @@
-# ZaviMart — Flutter Hiring Task
+# ZaviMart — Flutter Task Submission
 
 A Daraz-style product listing app built with Flutter + Riverpod, consuming the [Fake Store API](https://fakestoreapi.com/).
 
 ---
 
 ## Getting Started
+### Environment
+Implemented with:
+```
+Flutter 3.38.1 • channel stable
+Dart 3.10.0
+```
 
+#### setup
 ```bash
 git clone https://github.com/ReturajProshad/zaviMart.git
-cd zavimart
+cd zaviMart
 flutter pub get
 flutter run
 ```
@@ -90,6 +97,7 @@ Each tab's `CustomScrollView` uses a `PageStorageKey` to independently preserve 
 | `floating + snap` on `SliverAppBar` | The banner re-appears fully on any upward scroll (intentional Daraz-like behaviour). Removing `snap` gives a more subtle feel if preferred |
 | Search bar is UI-only | The `_SearchBar` widget captures input but is not wired to a filter provider. Connecting it requires debouncing and passing the query to `productsProvider` |
 | `productsProvider.family` per category | Each category tab gets its own notifier instance. This keeps state isolated but means each tab makes its own network request on first load |
+| Layout optimized for mobile portrait | Tablet/adaptive layouts were intentionally not implemented, as the focus of this task is scroll architecture and gesture coordination |
 
 ### 4. Why `AsyncNotifierProvider.family` for Tab State
 
